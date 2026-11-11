@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kredi Hesaplayıcı</title>
+<title>Loan Calculator</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>body{font-family:'Plus Jakarta Sans',system-ui,sans-serif}input[type=range]{accent-color:#0f766e}
+<style>
+body{font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+input[type=range]{accent-color:#0f766e}
 .buy-btn{background:linear-gradient(135deg,#7c3aed,#4f46e5,#2563eb);background-size:200% 200%;animation:buyShift 5s ease infinite,buyGlow 2.4s ease-in-out infinite;transition:transform .2s ease}
 .buy-btn:hover{transform:translateY(-2px) scale(1.03)}
 .buy-btn:focus-visible{outline:3px solid #c4b5fd;outline-offset:3px}
@@ -17,10 +19,31 @@
 .buy-btn-lemon:focus-visible{outline:3px solid #fde68a;outline-offset:3px}
 @keyframes lemonGlow{0%,100%{box-shadow:0 0 14px rgba(245,158,11,.55),0 0 32px rgba(249,115,22,.35)}50%{box-shadow:0 0 24px rgba(245,158,11,.85),0 0 54px rgba(249,115,22,.6)}}
 @media (prefers-reduced-motion:reduce){.buy-btn{animation:none;box-shadow:0 0 20px rgba(124,58,237,.6)}.buy-btn-lemon{animation:none;box-shadow:0 0 20px rgba(249,115,22,.6)}}
+.pick{appearance:none;-webkit-appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;cursor:pointer}
+.pick:hover{border-color:#0f766e}
 </style>
 </head>
 <body class="min-h-screen bg-slate-100 text-slate-800">
-<div class="flex w-full flex-wrap items-center justify-center gap-4 px-4 pt-8">
+
+<!-- Dil ve para birimi menüleri (sağ üst) -->
+<div dir="ltr" class="flex w-full justify-end gap-2 px-4 pt-4">
+  <label class="flex items-center gap-1.5">
+    <span aria-hidden="true">🌐</span>
+    <select id="langSel" class="pick rounded-full border border-slate-200 py-2 pl-4 pr-9 text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600">
+      <option value="en">English</option><option value="tr">Türkçe</option><option value="es">Español</option>
+      <option value="de">Deutsch</option><option value="fr">Français</option><option value="ar">العربية</option>
+      <option value="ru">Русский</option><option value="zh">中文</option><option value="ja">日本語</option>
+      <option value="pt">Português</option><option value="it">Italiano</option><option value="hi">हिन्दी</option>
+      <option value="ko">한국어</option><option value="nl">Nederlands</option><option value="pl">Polski</option>
+    </select>
+  </label>
+  <label class="flex items-center gap-1.5">
+    <span aria-hidden="true">💱</span>
+    <select id="curSel" class="pick rounded-full border border-slate-200 py-2 pl-4 pr-9 text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-600"></select>
+  </label>
+</div>
+
+<div class="flex w-full flex-wrap items-center justify-center gap-4 px-4 pt-6">
   <a href="https://gumroad.com" target="_blank" rel="noopener noreferrer"
      class="buy-btn inline-block rounded-full px-8 py-4 text-center text-base font-extrabold text-white sm:text-lg">
     🚀 Buy via Gumroad ($2)
@@ -30,52 +53,53 @@
     🍋 Buy via Lemon Squeezy ($2)
   </a>
 </div>
+
 <main class="mx-auto max-w-4xl px-4 py-10">
-  <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Kredi Hesaplayıcı</h1>
-  <p class="mt-1 text-slate-500">Aylık taksit, toplam geri ödeme ve ödeme planını anında gör.</p>
+  <h1 data-t="title" class="text-3xl font-extrabold tracking-tight text-slate-900"></h1>
+  <p data-t="sub" class="mt-1 text-slate-500"></p>
 
   <div class="mt-8 grid gap-6 md:grid-cols-5">
     <section class="md:col-span-2 rounded-3xl bg-white p-6 shadow-sm space-y-6">
       <div>
-        <label class="flex justify-between text-sm font-semibold">Kredi tutarı <span id="tutarEt" class="text-teal-700"></span></label>
+        <label class="flex justify-between gap-2 text-sm font-semibold"><span data-t="amt"></span> <span id="tutarEt" class="text-teal-700"></span></label>
         <input id="tutar" type="number" min="1000" step="1000" value="100000" class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600">
         <input id="tutarR" type="range" min="10000" max="2000000" step="5000" value="100000" class="mt-3 w-full">
       </div>
       <div>
-        <label class="flex justify-between text-sm font-semibold">Vade (ay) <span id="vadeEt" class="text-teal-700"></span></label>
+        <label class="flex justify-between gap-2 text-sm font-semibold"><span data-t="term"></span> <span id="vadeEt" class="text-teal-700"></span></label>
         <input id="vade" type="number" min="1" max="360" value="24" class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600">
         <input id="vadeR" type="range" min="3" max="120" step="1" value="24" class="mt-3 w-full">
       </div>
       <div>
-        <label class="text-sm font-semibold">Aylık faiz oranı (%)</label>
+        <label data-t="rate" class="text-sm font-semibold"></label>
         <input id="faiz" type="number" min="0" step="0.01" value="3.19" class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-teal-600">
       </div>
-      <label class="flex items-start gap-3 rounded-xl bg-slate-50 p-3 text-sm">
+      <label id="vergiBox" class="hidden items-start gap-3 rounded-xl bg-slate-50 p-3 text-sm">
         <input id="vergi" type="checkbox" checked class="mt-1 h-4 w-4 accent-teal-700">
-        <span><b>KKDF ve BSMV ekle</b><br><span class="text-slate-500">Tüketici kredilerinde faize %30 vergi (%15 + %15) eklenir. Konut kredisinde kapatabilirsin.</span></span>
+        <span><b data-t="tax"></b><br><span data-t="taxd" class="text-slate-500"></span></span>
       </label>
     </section>
 
     <section class="md:col-span-3 space-y-6">
       <div class="rounded-3xl bg-teal-800 p-6 text-white shadow-sm">
-        <p class="text-teal-100">Aylık taksit</p>
-        <p id="taksit" class="mt-1 text-5xl font-extrabold tracking-tight">—</p>
+        <p data-t="pay" class="text-teal-100"></p>
+        <p id="taksit" class="mt-1 text-4xl font-extrabold tracking-tight sm:text-5xl">—</p>
         <div class="mt-6 grid grid-cols-2 gap-4 border-t border-teal-600 pt-4">
-          <div><p class="text-sm text-teal-100">Toplam geri ödeme</p><p id="toplam" class="text-xl font-bold">—</p></div>
-          <div><p class="text-sm text-teal-100">Toplam faiz ve vergi</p><p id="faizToplam" class="text-xl font-bold">—</p></div>
+          <div><p data-t="tot" class="text-sm text-teal-100"></p><p id="toplam" class="text-lg font-bold sm:text-xl">—</p></div>
+          <div><p data-t="int" class="text-sm text-teal-100"></p><p id="faizToplam" class="text-lg font-bold sm:text-xl">—</p></div>
         </div>
         <div class="mt-5 h-3 w-full overflow-hidden rounded-full bg-teal-950/40">
           <div id="bar" class="h-full bg-amber-300" style="width:50%"></div>
         </div>
-        <p class="mt-2 text-xs text-teal-100"><span class="inline-block h-2 w-2 rounded-full bg-teal-950/60"></span> Anapara &nbsp; <span class="inline-block h-2 w-2 rounded-full bg-amber-300"></span> Faiz ve vergi</p>
+        <p class="mt-2 text-xs text-teal-100"><span class="inline-block h-2 w-2 rounded-full bg-teal-950/60"></span> <span data-t="prin"></span> &nbsp; <span class="inline-block h-2 w-2 rounded-full bg-amber-300"></span> <span data-t="ints"></span></p>
       </div>
 
       <div class="rounded-3xl bg-white p-6 shadow-sm">
-        <h2 class="font-bold">Ödeme planı</h2>
+        <h2 data-t="sch" class="font-bold"></h2>
         <div class="mt-3 max-h-80 overflow-auto rounded-xl border border-slate-100">
           <table class="w-full text-sm">
-            <thead class="sticky top-0 bg-slate-50 text-left text-slate-500">
-              <tr><th class="p-3">Ay</th><th class="p-3">Taksit</th><th class="p-3">Anapara</th><th class="p-3">Faiz+Vergi</th><th class="p-3">Kalan</th></tr>
+            <thead class="sticky top-0 bg-slate-50 text-start text-slate-500">
+              <tr><th data-t="hM" class="p-3 text-start"></th><th data-t="hP" class="p-3 text-start"></th><th data-t="hPr" class="p-3 text-start"></th><th data-t="hI" class="p-3 text-start"></th><th data-t="hB" class="p-3 text-start"></th></tr>
             </thead>
             <tbody id="plan" class="divide-y divide-slate-100"></tbody>
           </table>
@@ -83,28 +107,93 @@
       </div>
     </section>
   </div>
-  <p class="mt-6 text-center text-xs text-slate-400">Sonuçlar tahminidir; bankanın nihai teklifi farklı olabilir.</p>
+  <p data-t="disc" class="mt-6 text-center text-xs text-slate-400"></p>
 </main>
 
 <script>
 const $ = id => document.getElementById(id);
-const tl = n => n.toLocaleString('tr-TR', {style:'currency', currency:'TRY', maximumFractionDigits:2});
+
+// Çeviri anahtarları (her dil dizisi bu sırayla yazıldı)
+const K = ['title','sub','amt','term','mon','rate','tax','taxd','pay','tot','int','prin','ints','sch','hM','hP','hPr','hI','hB','disc','lng','cur'];
+const T = {
+en:['Loan Calculator','See your monthly payment, total repayment and payment schedule instantly.','Loan amount','Term','months','Monthly interest rate (%)','Add KKDF & BSMV taxes','Turkish consumer loans add 30% tax to interest (15% + 15%). Turn off for mortgages.','Monthly payment','Total repayment','Total interest','Principal','Interest','Payment schedule','Month','Payment','Principal','Interest','Balance','Results are estimates; the bank\'s final offer may differ.','Language','Currency'],
+tr:['Kredi Hesaplayıcı','Aylık taksit, toplam geri ödeme ve ödeme planını anında gör.','Kredi tutarı','Vade','ay','Aylık faiz oranı (%)','KKDF ve BSMV ekle','Tüketici kredilerinde faize %30 vergi (%15 + %15) eklenir. Konut kredisinde kapatabilirsin.','Aylık taksit','Toplam geri ödeme','Toplam faiz','Anapara','Faiz','Ödeme planı','Ay','Taksit','Anapara','Faiz','Kalan','Sonuçlar tahminidir; bankanın nihai teklifi farklı olabilir.','Dil','Para birimi'],
+es:['Calculadora de préstamos','Consulta al instante tu cuota mensual, el total a pagar y el plan de pagos.','Importe del préstamo','Plazo','meses','Tipo de interés mensual (%)','Añadir impuestos KKDF y BSMV','En los préstamos de consumo turcos se suma un 30 % de impuesto a los intereses (15 % + 15 %). Desactívalo para hipotecas.','Cuota mensual','Total a pagar','Intereses totales','Capital','Intereses','Plan de pagos','Mes','Cuota','Capital','Intereses','Saldo','Los resultados son estimaciones; la oferta final del banco puede variar.','Idioma','Moneda'],
+de:['Kreditrechner','Sieh sofort deine Monatsrate, die Gesamtrückzahlung und den Tilgungsplan.','Kreditbetrag','Laufzeit','Monate','Monatlicher Zinssatz (%)','KKDF- und BSMV-Steuern hinzufügen','Bei türkischen Verbraucherkrediten kommen 30 % Steuer auf die Zinsen hinzu (15 % + 15 %). Bei Immobilienkrediten ausschalten.','Monatsrate','Gesamtrückzahlung','Gesamtzinsen','Tilgung','Zinsen','Tilgungsplan','Monat','Rate','Tilgung','Zinsen','Restschuld','Alle Angaben sind Schätzwerte; das endgültige Bankangebot kann abweichen.','Sprache','Währung'],
+fr:['Calculateur de prêt','Découvrez instantanément votre mensualité, le total remboursé et le tableau d\'amortissement.','Montant du prêt','Durée','mois','Taux d\'intérêt mensuel (%)','Ajouter les taxes KKDF et BSMV','Pour les crédits à la consommation turcs, une taxe de 30 % s\'ajoute aux intérêts (15 % + 15 %). À désactiver pour un prêt immobilier.','Mensualité','Total remboursé','Total des intérêts','Capital','Intérêts','Tableau d\'amortissement','Mois','Mensualité','Capital','Intérêts','Restant dû','Résultats estimatifs ; l\'offre finale de la banque peut différer.','Langue','Devise'],
+ar:['حاسبة القروض','اعرف قسطك الشهري وإجمالي السداد وجدول الدفعات فوراً.','مبلغ القرض','المدة','شهر','نسبة الفائدة الشهرية (%)','إضافة ضريبتي KKDF وBSMV','تضاف ضريبة بنسبة 30% على فائدة القروض الاستهلاكية في تركيا (15% + 15%). أوقفها لقروض الإسكان.','القسط الشهري','إجمالي السداد','إجمالي الفائدة','أصل الدين','الفائدة','جدول السداد','الشهر','القسط','الأصل','الفائدة','المتبقي','النتائج تقديرية وقد يختلف عرض البنك النهائي.','اللغة','العملة'],
+ru:['Кредитный калькулятор','Мгновенно узнайте ежемесячный платёж, общую сумму выплат и график платежей.','Сумма кредита','Срок','мес.','Ежемесячная процентная ставка (%)','Добавить налоги KKDF и BSMV','По потребительским кредитам в Турции к процентам добавляется налог 30% (15% + 15%). Для ипотеки отключите.','Ежемесячный платёж','Общая сумма выплат','Всего процентов','Основной долг','Проценты','График платежей','Мес.','Платёж','Долг','Проценты','Остаток','Расчёт приблизителен; итоговое предложение банка может отличаться.','Язык','Валюта'],
+zh:['贷款计算器','即时查看月供、还款总额和还款计划。','贷款金额','期限','个月','月利率 (%)','加收 KKDF 和 BSMV 税','土耳其消费贷款的利息需加收 30% 的税（15% + 15%）。住房贷款请关闭。','月供','还款总额','利息总额','本金','利息','还款计划','期数','还款额','本金','利息','剩余本金','结果仅供参考，银行最终报价可能不同。','语言','货币'],
+ja:['ローン計算機','毎月の返済額、返済総額、返済スケジュールがすぐにわかります。','借入額','期間','か月','月利 (%)','KKDF・BSMV税を加算','トルコの消費者ローンでは利息に30%の税(15%+15%)が加算されます。住宅ローンではオフにしてください。','毎月の返済額','返済総額','利息総額','元金','利息','返済スケジュール','回','返済額','元金','利息','残高','結果は目安であり、銀行の最終提示額とは異なる場合があります。','言語','通貨'],
+pt:['Calculadora de Empréstimo','Veja na hora sua parcela mensal, o total a pagar e o cronograma de pagamentos.','Valor do empréstimo','Prazo','meses','Taxa de juros mensal (%)','Adicionar impostos KKDF e BSMV','Em empréstimos ao consumidor na Turquia, soma-se 30% de imposto aos juros (15% + 15%). Desative para financiamento imobiliário.','Parcela mensal','Total a pagar','Total de juros','Principal','Juros','Cronograma de pagamentos','Mês','Parcela','Principal','Juros','Saldo','Resultados estimados; a proposta final do banco pode variar.','Idioma','Moeda'],
+it:['Calcolatore di prestiti','Scopri subito la rata mensile, il totale da rimborsare e il piano di ammortamento.','Importo del prestito','Durata','mesi','Tasso di interesse mensile (%)','Aggiungi le imposte KKDF e BSMV','Sui prestiti al consumo turchi si aggiunge il 30% di imposta sugli interessi (15% + 15%). Disattiva per i mutui.','Rata mensile','Totale da rimborsare','Interessi totali','Capitale','Interessi','Piano di ammortamento','Mese','Rata','Capitale','Interessi','Residuo','I risultati sono stime; l\'offerta finale della banca può differire.','Lingua','Valuta'],
+hi:['लोन कैलकुलेटर','अपनी मासिक किस्त, कुल भुगतान और भुगतान तालिका तुरंत देखें।','लोन राशि','अवधि','महीने','मासिक ब्याज दर (%)','KKDF और BSMV कर जोड़ें','तुर्की के उपभोक्ता ऋणों में ब्याज पर 30% कर (15% + 15%) जुड़ता है। होम लोन के लिए बंद करें।','मासिक किस्त','कुल भुगतान','कुल ब्याज','मूलधन','ब्याज','भुगतान तालिका','माह','किस्त','मूलधन','ब्याज','शेष','परिणाम अनुमानित हैं; बैंक का अंतिम प्रस्ताव भिन्न हो सकता है।','भाषा','मुद्रा'],
+ko:['대출 계산기','월 상환액, 총 상환액, 상환 일정을 바로 확인하세요.','대출 금액','기간','개월','월 이자율 (%)','KKDF 및 BSMV 세금 추가','튀르키예 소비자 대출은 이자에 30% 세금(15% + 15%)이 추가됩니다. 주택담보대출은 끄세요.','월 상환액','총 상환액','총 이자','원금','이자','상환 일정','회차','상환액','원금','이자','잔액','결과는 예상치이며 은행의 최종 제안은 다를 수 있습니다.','언어','통화'],
+nl:['Leningcalculator','Zie direct je maandlast, het totaal terug te betalen bedrag en het aflossingsschema.','Leenbedrag','Looptijd','maanden','Maandelijkse rente (%)','KKDF- en BSMV-belasting toevoegen','Bij Turkse consumptieve leningen komt er 30% belasting op de rente (15% + 15%). Zet uit voor hypotheken.','Maandlast','Totaal terug te betalen','Totale rente','Hoofdsom','Rente','Aflossingsschema','Maand','Betaling','Hoofdsom','Rente','Restschuld','Resultaten zijn schattingen; het definitieve aanbod van de bank kan afwijken.','Taal','Valuta'],
+pl:['Kalkulator kredytowy','Zobacz od razu miesięczną ratę, całkowitą spłatę i harmonogram płatności.','Kwota kredytu','Okres','mies.','Miesięczne oprocentowanie (%)','Dodaj podatki KKDF i BSMV','W tureckich kredytach konsumenckich do odsetek doliczany jest podatek 30% (15% + 15%). Wyłącz dla kredytu hipotecznego.','Rata miesięczna','Całkowita spłata','Suma odsetek','Kapitał','Odsetki','Harmonogram spłat','Miesiąc','Rata','Kapitał','Odsetki','Pozostało','Wyniki są szacunkowe; ostateczna oferta banku może się różnić.','Język','Waluta']
+};
+
+const LOCALE = {zh:'zh-CN', pt:'pt-BR'};
+const CURRENCIES = [
+ ['USD','$ USD'],['EUR','€ EUR'],['GBP','£ GBP'],['TRY','₺ TRY'],['JPY','¥ JPY'],['CNY','¥ CNY'],['INR','₹ INR'],
+ ['RUB','₽ RUB'],['AED','د.إ AED'],['SAR','﷼ SAR'],['CAD','C$ CAD'],['AUD','A$ AUD'],['CHF','CHF'],['BRL','R$ BRL'],
+ ['KRW','₩ KRW'],['SEK','kr SEK'],['MXN','Mex$ MXN'],['SGD','S$ SGD'],['HKD','HK$ HKD'],['PLN','zł PLN']
+];
+// Sadece ilk açılışta kullanılan varsayılan para birimi önerisi (sonra iki menü bağımsızdır)
+const DEF_CUR = {en:'USD',tr:'TRY',es:'EUR',de:'EUR',fr:'EUR',ar:'AED',ru:'RUB',zh:'CNY',ja:'JPY',pt:'BRL',it:'EUR',hi:'INR',ko:'KRW',nl:'EUR',pl:'PLN'};
+
+let lang = 'en', cur = 'USD';
+const t = k => T[lang][K.indexOf(k)];
+
+function detectLang() {
+  const list = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en'];
+  for (const l of list) {
+    const c = String(l).toLowerCase().split('-')[0];
+    if (T[c]) return c;
+  }
+  return 'en';
+}
+
+function money(n) {
+  try {
+    return new Intl.NumberFormat(LOCALE[lang] || lang, {style:'currency', currency:cur, currencyDisplay:'narrowSymbol'}).format(n);
+  } catch (e) {
+    return n.toFixed(2) + ' ' + cur;
+  }
+}
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.title = t('title');
+  document.querySelectorAll('[data-t]').forEach(el => el.textContent = t(el.dataset.t));
+  $('langSel').setAttribute('aria-label', t('lng'));
+  $('langSel').title = t('lng');
+  $('curSel').setAttribute('aria-label', t('cur'));
+  $('curSel').title = t('cur');
+  hesapla();
+}
 
 function hesapla() {
+  // KKDF/BSMV seçeneği sadece Türkçe dilinde veya TRY para biriminde görünür
+  const trMode = lang === 'tr' || cur === 'TRY';
+  $('vergiBox').classList.toggle('hidden', !trMode);
+  $('vergiBox').classList.toggle('flex', trMode);
+
   const P = parseFloat($('tutar').value) || 0;
   const n = Math.max(1, parseInt($('vade').value) || 1);
   let r = (parseFloat($('faiz').value) || 0) / 100;
-  if ($('vergi').checked) r *= 1.30;
+  if (trMode && $('vergi').checked) r *= 1.30;
 
   const taksit = r === 0 ? P / n : P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
   const toplam = taksit * n;
   const faizVergi = toplam - P;
 
-  $('tutarEt').textContent = tl(P);
-  $('vadeEt').textContent = n + ' ay';
-  $('taksit').textContent = tl(taksit);
-  $('toplam').textContent = tl(toplam);
-  $('faizToplam').textContent = tl(faizVergi);
+  $('tutarEt').textContent = money(P);
+  $('vadeEt').textContent = n + ' ' + t('mon');
+  $('taksit').textContent = money(taksit);
+  $('toplam').textContent = money(toplam);
+  $('faizToplam').textContent = money(faizVergi);
   $('bar').style.width = (toplam > 0 ? faizVergi / toplam * 100 : 0) + '%';
 
   let kalan = P, rows = '';
@@ -112,7 +201,7 @@ function hesapla() {
     const f = kalan * r;
     const ana = taksit - f;
     kalan = Math.max(0, kalan - ana);
-    rows += `<tr><td class="p-3">${i}</td><td class="p-3">${tl(taksit)}</td><td class="p-3">${tl(ana)}</td><td class="p-3">${tl(f)}</td><td class="p-3">${tl(kalan)}</td></tr>`;
+    rows += `<tr><td class="p-3">${i}</td><td class="p-3">${money(taksit)}</td><td class="p-3">${money(ana)}</td><td class="p-3">${money(f)}</td><td class="p-3">${money(kalan)}</td></tr>`;
   }
   $('plan').innerHTML = rows;
 }
@@ -124,7 +213,20 @@ function hesapla() {
 });
 $('faiz').addEventListener('input', hesapla);
 $('vergi').addEventListener('change', hesapla);
-hesapla();
+
+// Para birimi menüsünü doldur
+$('curSel').innerHTML = CURRENCIES.map(([c, l]) => `<option value="${c}">${l}</option>`).join('');
+
+// Menüler birbirinden bağımsız çalışır
+$('langSel').addEventListener('change', e => { lang = e.target.value; applyLang(); });
+$('curSel').addEventListener('change', e => { cur = e.target.value; hesapla(); });
+
+// Başlangıç: tarayıcı dili algılanır, listede yoksa English
+lang = detectLang();
+cur = DEF_CUR[lang] || 'USD';
+$('langSel').value = lang;
+$('curSel').value = cur;
+applyLang();
 </script>
 </body>
 </html>
